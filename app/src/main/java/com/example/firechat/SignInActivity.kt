@@ -4,9 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.firechat.util.FirestoreUtil
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.design.longSnackbar
@@ -35,7 +37,6 @@ class SignInActivity : AppCompatActivity() {
 
             val intent = AuthUI.getInstance().createSignInIntentBuilder()
                 .setAvailableProviders(signInProviders)
-                .setLogo(R.drawable.common_full_open_on_phone)
                 .build()
             startActivityForResult(intent, RC_SIGN_IN)
 
@@ -50,10 +51,12 @@ class SignInActivity : AppCompatActivity() {
             val response = IdpResponse.fromResultIntent(data)
 
             if (resultCode == Activity.RESULT_OK) {
-                val progressDialog = indeterminateProgressDialog("COnfigurando sua Conta")
-                    //TODO: inicializar o firebase
+                val progressDialog = indeterminateProgressDialog("Configurando sua Conta")
+                FirestoreUtil.initCurrentUserIfFirstTime {
                     startActivity(intentFor<MainActivity>().newTask().clearTask())
                     progressDialog.dismiss()
+                }
+
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 if (response == null) return
